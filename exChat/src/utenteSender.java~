@@ -1,0 +1,16 @@
+package com.wizards.exChat;
+
+import java.net.*;
+import java.io.*;
+import java.util.*;
+
+/*
+*Classe che invia i messaggi e li inoltra al manager
+*@author Luca Colangelo
+*/
+
+public class UtenteSender{
+
+  Vector<String> messaggi = new Vector<String>();
+  
+}

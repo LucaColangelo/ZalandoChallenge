@@ -1,0 +1,101 @@
+package com.wizards.exChat;
+
+import java.net.*;
+import java.io.*;
+import java.util.*;
+
+/**
+*Classe Connector che gestisce le connessioni e i messaggi
+*@author Luca Colangelo
+*@extends Thread
+*/
+
+public class Connector extends Thread{
+  
+ 
+  private Socket socket;
+  String       s         = "";
+  InputStream  is        = null;  
+  InputStreamReader isr  = null;
+  BufferedReader br      = null;
+  OutputStream os        = null;
+  OutputStreamWriter osw = null;
+  BufferedWriter bw      = null;
+  //Vector<Thread> utenti  = null;
+	  
+
+  //costruttore
+  public Connector(Socket socket){
+    this.socket = socket;
+    //this.utenti = utenti;
+  }
+  
+  //implementazione del metodo run. Questo metodo identifica l'utente e ne gestisce i messaggi
+  public void run(){
+    try{
+      is  = socket.getInputStream(); //catena di costruttori per la lettura
+      isr = new InputStreamReader(is);
+      br  = new BufferedReader(isr);  
+      os  = socket.getOutputStream(); //catena di costruttori             	 
+      osw = new OutputStreamWriter(os);
+      bw  = new BufferedWriter(osw);
+      
+
+
+
+      //Ciclo che legge i messaggi dell'utente
+      do{ 
+
+        s = br.readLine();//leggo e memorizzo nella stringa  
+        System.out.println(socket.getInetAddress() + " scrive : " + s); //stampo il messaggio
+        //for !! così lo riscrive solo al client
+        bw.write();
+        //controllo necessario per evitare un loop nel caso l'utente si disconnetta improvvisamente   
+        if(null == s){
+          System.out.println("L'utente " + socket.getInetAddress() + " si e' disconnesso.");
+          break;
+        }
+
+     }while(true);  
+    }catch(IOException e){
+      System.out.println("ERROR : "+e.getMessage());
+	  System.exit(1);
+    }finally{
+      //se tutto è andato bene pulisco chiudendo (in ordine inverso all'apertura) gli stream e il socket    
+	  if(null != br){// chiudo il BufferedReader
+	    try{
+	      br.close(); 
+	    }catch(IOException e){
+	      System.out.println("ERROR : "+e.getMessage());
+            }
+	  } 
+	  
+	  if(null != isr){
+	    try{ //chiudo l'InStr
+	      isr.close(); 
+	    }catch(IOException e){
+	      System.out.println("ERROR : "+e.getMessage());
+            }
+	  }
+
+	  if(null != is){
+	    try{
+              is.close();
+            }catch(IOException e){
+	      System.out.println("ERROR : "+e.getMessage());
+            }
+	  }
+	
+   }
+ }
+}
+
+
+          /* The message is public, broadcast it to all other clients. 
+          synchronized (this) {
+            for (int i = 0; i < maxClientsCount; i++) {
+              if (threads[i] != null && threads[i].clientName != null) {
+                threads[i].os.println("<" + name + "> " + line);
+              }
+            }*/
+

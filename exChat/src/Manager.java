@@ -1,0 +1,71 @@
+package com.wizards.exChat;
+
+import java.net.*;
+import java.io.*;
+import java.util.*;
+
+/*
+*Classe Manager che gestisce i messaggi
+*@author Luca Colangelo
+*/
+
+public class Manager extends Thread{
+  
+  Vector<Utente> utenti   = new Vector<Utente>();//lista degli utenti 
+  Vector<String> messaggi = new Vector<String>();//coda dei messaggi
+
+  /*metodo che aggiunge i partecipanti alla chat
+  *@param Utente.
+  */
+  public void addUtente(Utente utente){
+    utenti.add(utente);
+  }
+
+  /*Metodo che aggiunge il messaggio alla coda e lo notifica al lettore dei messaggi
+  *@param Utente
+  *@param Stringa
+  */
+  public synchronized void gestoreMessaggio(Utente utente,String messaggio){
+    Socket socket = utente.cSocket; //prendo il Socket dell'utente
+    messaggio = socket.getInetAddress() + " says : " + messaggio; //memorizzo il messaggio
+    messaggi.add(messaggio);//l'aggiungo alla coda
+    notify(); //lo notifico al lettore
+  }
+
+  /*Metodo che restituisce e cancella i messaggi dalla coda.
+  * Se la coda e' vuota aspetta la notifica del gestoreMessaggi
+  *@return String.
+  */
+  private synchronized String messaggioInCoda() throws InterruptedException{
+    while(0 == messaggi.size()){ //attendi la notifica del gestore
+      wait();
+    }
+    String m = messaggi.get(0); //memorizzo il messaggio
+    messaggi.removeElementAt(0);//e lo rimuovo
+    return m;
+  }
+   
+
+  /*Metodo che invia il messaggio a tutti, passandolo alla coda del sender dell'utente
+  *@param String
+  */
+  private synchronized void inviaATutti(String messaggio){
+    //ciclo sugli utenti ed invio il messaggio
+    for(Utente u :utenti){
+      u.cUtenteSender.inviaMessaggio(messaggio);
+    }
+  }
+
+  /*Metodo run che legge i messaggi dalla coda e li invia a tutti gli utenti (tramite il Sender)*/
+  public void run(){
+    try{ 
+      while(true){
+        String m = messaggioInCoda();
+        inviaATutti(m);
+      }
+    }catch(InterruptedException e){
+      System.out.println("Error : " + e.getMessage());
+    }
+  }
+
+}

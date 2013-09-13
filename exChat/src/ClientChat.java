@@ -1,0 +1,114 @@
+package com.wizards.exChat;
+
+import java.net.*;
+import java.io.*;
+
+/**
+*Classe Client per una chat
+*/
+
+public class ClientChat{
+  public static void main(String argv[]){
+    String host = "localHost";
+    int    port =  7181;
+   
+    Socket socket = null;
+
+    OutputStream os        = null;
+    OutputStreamWriter osw = null;
+    BufferedWriter bw      = null;
+	
+
+    InputStream  is       = null;
+    InputStreamReader isr = null;
+    BufferedReader br     = null;
+	
+    try{
+     socket = new Socket(host,port);//creo socket 
+          
+     is = socket.getInputStream();
+     isr = new InputStreamReader(is);
+     br = new BufferedReader(isr); 
+
+     os = socket.getOutputStream(); //catena di costruttori             	 
+     osw = new OutputStreamWriter(os);
+     bw  = new BufferedWriter(osw);
+     
+    }catch(IOException ioe){
+        System.out.println("Error : "+ ioe.getMessage());   
+    }
+
+    //Creo il thread sender che permette di inviare messaggi al server
+    Sender sender = new Sender(bw);
+    sender.setDaemon(true);//per interrompere la connessione se sparisce il server
+    sender.start();
+
+    try{
+      String m;
+      //Leggo i messaggi e li stampo
+      while (null != (m = br.readLine()) ) {
+         System.out.println(m);
+      }
+    }catch(IOException ioe){
+       System.out.println("Error : "+ ioe.getMessage());
+    }
+
+  }
+}
+ 
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*finally{//chiudo tutto
+	   
+	   if(null != bw){
+	    try{
+		  bw.close();
+		}catch(Exception e1){}
+	  }
+	  
+	  if(null != osw){
+	    try{
+		  osw.close();
+		}catch(Exception e1){}
+	  }
+	  
+	   if(null != os){
+	    try{
+		  os.close();
+		}catch(Exception e1){}
+	  }
+	  
+	   if(null != socket){
+	    try{
+		  socket.close();
+		}catch(Exception e1){}
+	  }
+	}
+	
+	
+	}
+}*/

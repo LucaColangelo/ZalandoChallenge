@@ -1,0 +1,67 @@
+package com.wizards.exChat;
+
+import java.net.*;
+import java.io.*;
+
+/**
+*Classe Dialogo che implementa l'interfaccia Runnable lanciando i Thread
+*@author LC
+*/
+
+public class Dialogo implements Runnable{
+  
+ 
+  private Socket socket;
+  InputStream  is       = null;
+  String       s        = "";
+  InputStreamReader isr = null;
+  BufferedReader br     = null;
+  
+  //costruttore
+  public Dialogo(Socket socket){
+    this.socket = socket;
+  }
+  
+  
+  
+  public void run(){
+    try{
+     is                    = socket.getInputStream(); //catena di costruttori
+     isr                   = new InputStreamReader(is);
+     br                    = new BufferedReader(isr);  
+     while(true){ 
+       s = br.readLine();//leggo e memorizzo nella stringa  
+	   System.out.println(socket.getInetAddress() + " scrive : " + s);
+	   if(null == s){
+	     System.out.println("L'utente " + socket.getInetAddress() + "si è disconnesso.");
+		 break;
+	   }
+	 }
+    }catch(IOException e){
+      System.out.println("ERROR : "+e.getMessage());
+	  System.exit(1);
+    }finally{
+	  if(null != br){// chiudo il BuffeRead
+	    try{
+		  br.close(); //se tutto è andato bene chiudo il flusso e faccio pulizia
+		}catch(IOException ioe2){
+		}
+	  } 
+	  
+	  if(null != isr){
+	    try{ //chiudo l'InStr
+		  isr.close(); //se tutto è andato bene chiudo il flusso e faccio pulizia
+		}catch(IOException ioe2){
+		}
+	  }
+	  if(null != is){
+	    try{
+		  is.close(); //se tutto è andato bene chiudo il flusso e faccio pulizia
+		}catch(IOException ioe2){
+		}
+	  }
+	
+   }
+ }
+}
+

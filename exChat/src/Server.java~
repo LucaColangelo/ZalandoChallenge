@@ -1,0 +1,53 @@
+package com.wizards.exChat;
+
+import java.net.*;
+import java.io.*;
+
+/**
+*Classe Sever per una chat
+*@author Luca Colangelo
+*/
+
+public class Server{
+  
+  public static void main(String argv[]){
+  
+    //inizializzo tutto ciò che mi occorre
+    int          port   = 8181; 
+    ServerSocket server = null;
+    Socket       socket = null;
+	
+	
+    //creo il server specificando la porta e gestendo le eccezioni
+    try{
+      server = new ServerSocket(port);
+      System.out.println("Server creato.");
+      System.out.println("In attesa di connessioni...");
+    }catch(IOException e){
+      System.out.println("ERROR : "+e.getMessage());
+    }
+    
+    //Genero il loop che mantiene il server sempre in ascolto
+    try{ 
+      do{	
+	  socket = server.accept(); //per ogni connessione genero un socket 
+	  System.out.println("L'utente " + socket.getInetAddress() + "si e' connesso."); // da aggiungere il nome
+	  
+          Thread t = new Thread(new Connector(socket)); // e lo passo al thread che mi gestisce le connesioni
+	  t.start();//lancio il thread
+      }while(true);	  
+    }catch(IOException ioe){
+	  System.out.println(ioe.getMessage());
+    } /*finally{//trovare un modo di chiudere
+	  if(null != socket){
+	    try{
+		  socket.close(); //se tutto è andato bene chiudo il flusso e faccio pulizia
+	    }catch(IOException ioe3){
+	    }
+        }*/
+   }  
+  
+   //System.out.println(s);
+  
+  }
+
